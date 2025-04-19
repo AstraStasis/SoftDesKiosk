@@ -21,7 +21,6 @@ public class Kiosk extends Application {
 
     @Override
     public void start(Stage stage) {
-        // --- HEADER ---
         HBox header = new HBox(15);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(20));
@@ -43,7 +42,6 @@ public class Kiosk extends Application {
         title.setStyle("-fx-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
         header.getChildren().addAll(logoView, title);
 
-        // --- MAIN MENU ---
         mainMenu = new VBox(20);
         mainMenu.setAlignment(Pos.CENTER);
         mainMenu.setPadding(new Insets(30));
@@ -57,8 +55,7 @@ public class Kiosk extends Application {
         exitButton.setOnAction(e -> stage.close());
 
         mainMenu.getChildren().addAll(purchaseUniformButton, purchaseBookButton, exitButton);
-
-        // --- MAIN LAYOUT ---
+        
         mainLayout = new BorderPane();
         mainLayout.setTop(header);
         mainLayout.setCenter(mainMenu);
@@ -88,13 +85,12 @@ public class Kiosk extends Application {
             productBox.setStyle("-fx-border-color: #ccc; -fx-border-width: 2px; -fx-background-color: #f9f9f9; -fx-border-radius: 10px; -fx-background-radius: 10px;");
             productBox.setPrefSize(200, 250);
 
-            // Placeholder image
             ImageView imageView;
             try {
                 Image placeholder = new Image(getClass().getResourceAsStream("/placeholder_img.png"));
                 imageView = new ImageView(placeholder);
             } catch (Exception e) {
-                imageView = new ImageView(); // fallback if image is missing
+                imageView = new ImageView();
             }
             imageView.setFitHeight(120);
             imageView.setPreserveRatio(true);
