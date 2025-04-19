@@ -1,0 +1,40 @@
+/* styles.css */
+
+/* Global font and background */
+.root {
+    -fx-font-family: 'OpenSans', sans-serif;
+    -fx-background-color: linear-gradient(to bottom right, #ffffff, #e0eafc);
+}
+
+/* Button styles */
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 12 25 12 25;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+}
+
+/* Style for Exit button */
+.exit-button {
+    -fx-background-color: #f44336;
+}
+
+.exit-button:hover {
+    -fx-background-color: #e53935;
+}
+
+/* Header title text */
+.text {
+    -fx-fill: white;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
