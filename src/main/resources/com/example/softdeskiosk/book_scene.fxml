@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Pos?>
-
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.softdeskiosk.BookController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.softdeskiosk.BookController" stylesheets="@styles.css">
     <VBox alignment="CENTER" spacing="20" layoutX="100" layoutY="100">
-        <ListView fx:id="bookListView" prefHeight="200" prefWidth="300"/>
+        <!-- Product Grid (FlowPane) -->
+        <FlowPane fx:id="productGrid" hgap="20" vgap="20" alignment="CENTER" />
+
+        <!-- Back to Main Button -->
         <Button text="Back to Main Menu" onAction="#handleBackToMainMenu" prefWidth="200"/>
     </VBox>
 </AnchorPane>
