@@ -41,7 +41,6 @@ public class BookController {
         // Name
         Text productName = new Text(name);
 
-        // Price
         Text productPrice = new Text(price);
 
         // Purchase Button
