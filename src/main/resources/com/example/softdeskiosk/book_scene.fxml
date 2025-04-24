@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Pos?>
+
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.softdeskiosk.BookController">
+    <VBox alignment="CENTER" spacing="20" layoutX="100" layoutY="100">
+        <ListView fx:id="bookListView" prefHeight="200" prefWidth="300"/>
+        <Button text="Back to Main Menu" onAction="#handleBackToMainMenu" prefWidth="200"/>
+    </VBox>
+</AnchorPane>
