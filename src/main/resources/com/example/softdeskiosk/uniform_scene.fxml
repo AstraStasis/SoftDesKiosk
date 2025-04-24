@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.Button?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.softdeskiosk.UniformController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.softdeskiosk.UniformController" stylesheets="@styles.css">
     <children>
         <!-- TableView for uniforms -->
         <TableView fx:id="uniformTableView" layoutX="14.0" layoutY="14.0" prefHeight="400.0" prefWidth="580.0">
