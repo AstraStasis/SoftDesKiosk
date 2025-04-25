@@ -11,7 +11,6 @@ public class Uniform {
         this.price = price;
     }
 
-    // Getters only (TableView uses these)
     public String getCode() { return code; }
     public String getName() { return name; }
     public String getPrice() { return price; }

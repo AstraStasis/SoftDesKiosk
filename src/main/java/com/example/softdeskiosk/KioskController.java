@@ -1,7 +1,6 @@
 package com.example.softdeskiosk;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 
 public class KioskController {
     private Kiosk kiosk;
