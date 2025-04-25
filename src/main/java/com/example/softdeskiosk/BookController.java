@@ -8,6 +8,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
 
@@ -28,44 +32,25 @@ public class BookController {
 
     @FXML
     public void initialize() {
-        String[][] books = {
-                {"6630", "AC-MGT102: Corporate Social Responsibility", "500.00"},
-                {"6486", "BA-MGT103: Operations Management (TQM)", "375.00"},
-                {"6487", "BA-MGT104: International Business and Trade", "420.00"},
-                {"6489", "BA-MGT105: Strategic Management", "420.00"},
-                {"6480", "BA-MGT106: Essentials of Risk Management", "350.00"},
-                {"6529", "CPE01: Programming Logic & Design using Dev C++", "450.00"},
-                {"6520", "ENTREP3: Opportunity Seeking To Start A Business Community", "450.00"},
-                {"6521", "GEO1: Understanding the Self (Revised Edition)", "430.00"},
-                {"6522", "GEO2: Readings in Philippine History", "400.00"},
-                {"6525", "GEO3: The Contemporary World - NP", "410.00"},
-                {"6526", "GE04: Mathematics in the Modern World (Revised edition)", "440.00"},
-                {"6527", "GE05: Communicate & Connect Purposive Communication", "550.00"},
-                {"6528", "GE06: An Eye for Art Appreciation", "450.00"},
-                {"6529", "GE07: Science Technology and Society", "630.00"},
-                {"6530", "GE08: Introduction to Ethics", "350.00"},
-                {"6531", "GE09: The Life and Works of Rizal", "375.00"},
-                {"6532", "GE-ELEC6: Environmental Science", "610.00"},
-                {"6533", "GE-ELEC7: Entrepreneurial Mindset", "600.00"},
-                {"6536", "HR105: Training and Development 2nd Edition", "400.00"},
-                {"6537", "HR106: Labor Laws and Legislation 2nd Edition", "400.00"},
-                {"6538", "HR110: Labor Relations and Negotiations 2nd Edition", "570.00"},
-                {"6540", "HR111: Organization Development 2nd Edition", "500.00"},
-                {"6627", "ITC320: Introduction to Applications Dev & Emerging Tech", "700.00"},
-                {"6631", "ITP120: Essentials of Human Computer Interaction", "275.00"},
-                {"6632", "ITP320: Information Assurance and Security 1", "350.00"},
-                {"6633", "MM105: Pricing Strategy", "520.00"},
-                {"6546", "NSTP: National Service Training Program 2", "390.00"},
-                {"6634", "OM1002: Concepts and Approaches in Inventory", "640.00"},
-                {"6635", "OM104: Project Management", "475.00"},
-                {"6636", "OM105: Supply Chain & Logistics Management", "600.00"},
-                {"6559", "OM-THESIS1: Understanding Research Design and Methods", "350.00"}
-        };
+        try {
+            InputStream is = getClass().getResourceAsStream("/books.csv"); // working dir: src/main/resources/books.csv
+            if (is == null) {
+                System.err.println("books.csv not found");
+                return;
+            }
 
-        for (String[] book : books) {
-            VBox box = createProductBox(book[1], book[2]);
-            productGrid.getChildren().add(box);
-            bookBoxes.add(box);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] book = line.split(",", 3);
+                if (book.length < 3) continue;
+                VBox box = createProductBox(book[0], book[1], book[2]);
+                productGrid.getChildren().add(box);
+                bookBoxes.add(box);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -79,14 +64,22 @@ public class BookController {
         });
     }
 
-    private VBox createProductBox(String nameStr, String priceStr) {
+    private VBox createProductBox(String idStr, String nameStr, String priceStr) {
         VBox box = new VBox(10);
         box.setStyle("-fx-border-color: #ccc; -fx-border-width: 2px; -fx-background-color: #f9f9f9; -fx-border-radius: 10px; -fx-background-radius: 10px;");
         box.setPadding(new javafx.geometry.Insets(15));
         box.setPrefSize(240, 270);
         box.setAlignment(javafx.geometry.Pos.CENTER);
 
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/placeholder_img.png")));
+        Image image;
+        InputStream imageStream = getClass().getResourceAsStream("/book_images/" + idStr + ".png");
+        if (imageStream != null) {
+            image = new Image(imageStream);
+        } else {
+            image = new Image(getClass().getResourceAsStream("/placeholder_img.png"));
+        }
+
+        ImageView imageView = new ImageView(image);
         imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
 
@@ -99,6 +92,7 @@ public class BookController {
         box.getChildren().addAll(imageView, name, price, purchaseBtn);
         return box;
     }
+
 
     @FXML
     private void handleBackToMainMenu() {
