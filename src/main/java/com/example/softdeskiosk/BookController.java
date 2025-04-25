@@ -88,11 +88,25 @@ public class BookController {
 
         Button purchaseBtn = new Button("Order");
         purchaseBtn.setMaxWidth(160);
+        purchaseBtn.setOnAction(e -> addToCart(idStr, nameStr, priceStr));
 
         box.getChildren().addAll(imageView, name, price, purchaseBtn);
         return box;
     }
 
+    private void addToCart(String id, String name, String price) {
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get("temp.csv");
+            java.nio.file.Files.write(
+                    path,
+                    (id + "," + name + "," + price + System.lineSeparator()).getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleBackToMainMenu() {

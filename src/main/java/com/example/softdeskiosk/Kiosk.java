@@ -15,6 +15,8 @@ import javafx.util.Duration;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.io.IOException;
+
 public class Kiosk extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout; // holds header (top) and sliding content (center)
@@ -88,6 +90,21 @@ public class Kiosk extends Application {
         animateToCenter(content);
     }
 
+    public void showCheckoutScene() {
+        try {
+            // Load the FXML file for the checkout scene
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/checkout.fxml"));
+            Parent content = loader.load();
+            CheckoutController controller = loader.getController();
+            controller.setKiosk(this);
+
+            // Transition to checkout scene with animation
+            animateToCenter(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void animateToCenter(Parent newContent) {
         // Optional: Fade and slide old content out
         Parent oldContent = (Parent) rootLayout.getCenter();
@@ -130,5 +147,9 @@ public class Kiosk extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void restart() {
+
     }
 }

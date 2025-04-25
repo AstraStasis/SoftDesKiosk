@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
 
 <AnchorPane fx:id="mainLayout" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.softdeskiosk.KioskController" stylesheets="@styles.css">
@@ -13,6 +16,21 @@
         <children>
             <Button text="Books" fx:id="booksButton" onAction="#goToBooks" styleClass="button"/>
             <Button text="Uniforms" fx:id="uniformsButton" onAction="#goToUniforms" styleClass="button"/>
+            <!-- Cart Table -->
+            <HBox spacing="20.0" alignment="CENTER" AnchorPane.topAnchor="250.0">
+                <TableView fx:id="cartTable">
+                    <columns>
+                        <TableColumn text="Item" fx:id="itemColumn" />
+                        <TableColumn text="Quantity" fx:id="quantityColumn" />
+                        <TableColumn text="Price" fx:id="priceColumn" />
+                    </columns>
+                </TableView>
+            </HBox>
+            <!-- Checkout and Restart Buttons -->
+            <HBox spacing="20.0" alignment="CENTER" AnchorPane.topAnchor="400.0">
+                <Button text="Checkout" fx:id="checkoutButton" onAction="#goToCheckout" styleClass="button"/>
+                <Button text="Restart" fx:id="restartButton" onAction="#restartKiosk" styleClass="button"/>
+            </HBox>
         </children>
     </VBox>
 </AnchorPane>

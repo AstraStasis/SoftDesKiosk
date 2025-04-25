@@ -9,6 +9,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class UniformController {
@@ -27,20 +31,24 @@ public class UniformController {
 
     @FXML
     public void initialize() {
-        String[][] uniforms = {
-                {"U101", "PE Shirt", "355.00"},
-                {"U102", "PE Pants", "450.00"},
-                {"U103", "Women's Blouse", "525.00"},
-                {"U104", "Women's Skirt", "425.00"},
-                {"U105", "Women's Pants", "510.00"},
-                {"U106", "Men's Polo", "515.00"},
-                {"U107", "Men's Pants", "530.00"},
-        };
+        try {
+            InputStream is = getClass().getResourceAsStream("/uniforms.csv"); // place the CSV in src/main/resources/
+            if (is == null) {
+                System.err.println("uniforms.csv not found");
+                return;
+            }
 
-        for (String[] uniform : uniforms) {
-            VBox box = createProductBox(uniform[1], uniform[2]);
-            productGrid.getChildren().add(box);
-            uniformBoxes.add(box);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] uniform = line.split(",", 3);
+                if (uniform.length < 3) continue;
+                VBox box = createProductBox(uniform[0], uniform[1], uniform[2]);
+                productGrid.getChildren().add(box);
+                uniformBoxes.add(box);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -54,14 +62,22 @@ public class UniformController {
         });
     }
 
-    private VBox createProductBox(String nameStr, String priceStr) {
+    private VBox createProductBox(String idStr, String nameStr, String priceStr) {
         VBox box = new VBox(10);
         box.setStyle("-fx-border-color: #ccc; -fx-border-width: 2px; -fx-background-color: #f9f9f9; -fx-border-radius: 10px; -fx-background-radius: 10px;");
         box.setPadding(new javafx.geometry.Insets(15));
         box.setPrefSize(240, 270);
         box.setAlignment(javafx.geometry.Pos.CENTER);
 
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("/placeholder_img.png")));
+        Image image;
+        InputStream imageStream = getClass().getResourceAsStream("/uniform_images/" + idStr + ".png");
+        if (imageStream != null) {
+            image = new Image(imageStream);
+        } else {
+            image = new Image(getClass().getResourceAsStream("/placeholder_img.png"));
+        }
+
+        ImageView imageView = new ImageView(image);
         imageView.setFitHeight(100);
         imageView.setPreserveRatio(true);
 
@@ -70,9 +86,24 @@ public class UniformController {
 
         Button purchaseBtn = new Button("Order");
         purchaseBtn.setMaxWidth(160);
+        purchaseBtn.setOnAction(e -> addToCart(idStr, nameStr, priceStr));
 
         box.getChildren().addAll(imageView, name, price, purchaseBtn);
         return box;
+    }
+
+    private void addToCart(String id, String name, String price) {
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get("temp.csv");
+            java.nio.file.Files.write(
+                    path,
+                    (id + "," + name + "," + price + System.lineSeparator()).getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @FXML
