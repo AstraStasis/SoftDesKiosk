@@ -1,40 +1,53 @@
 /* styles.css */
 
-/* Global font and background */
+/* Global */
 .root {
     -fx-font-family: 'OpenSans', sans-serif;
     -fx-background-color: linear-gradient(to bottom right, #ffffff, #e0eafc);
 }
 
-/* Button styles */
+/* Standard buttons */
 .button {
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
-    -fx-font-size: 18px;
+    -fx-font-size: 20px;            /* increased */
     -fx-font-weight: bold;
-    -fx-padding: 12 25 12 25;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
+    -fx-padding: 16 32;             /* increased */
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);
 }
-
 .button:hover {
     -fx-background-color: #45a049;
 }
 
-/* Style for Exit button */
+/* Card-style buttons (Books / Uniforms) */
+.card-button {
+    -fx-background-color: #4CAF50;   /* always green */
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+    -fx-padding: 30;                 /* more space */
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 4);
+}
+.card-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 6);
+}
+
+/* Text under icons */
+.card-text {
+    -fx-fill: white;
+    -fx-font-size: 22px;             /* increased */
+    -fx-font-weight: bold;
+}
+
+/* Exit button override */
 .exit-button {
     -fx-background-color: #f44336;
+    -fx-font-size: 20px;
+    -fx-padding: 16 32;
 }
-
 .exit-button:hover {
     -fx-background-color: #e53935;
-}
-
-/* Header title text */
-.text {
-    -fx-fill: white;
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
 }

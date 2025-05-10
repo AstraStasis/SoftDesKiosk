@@ -4,6 +4,7 @@ import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -19,14 +20,13 @@ import java.io.IOException;
 
 public class Kiosk extends Application {
     private Stage primaryStage;
-    private BorderPane rootLayout; // holds header (top) and sliding content (center)
+    private BorderPane rootLayout;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
-        // Create layout
         rootLayout = new BorderPane();
         rootLayout.setTop(createHeader());
 
@@ -63,42 +63,58 @@ public class Kiosk extends Application {
         return header;
     }
 
-    public void showMainMenu() throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_menu.fxml"));
-        Parent content = loader.load();
-        KioskController controller = loader.getController();
-        controller.setKiosk(this);
+    public void showMainMenu() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/main_menu.fxml"));
+            Parent content = loader.load();
 
-        animateToCenter(content);
+            KioskController controller = loader.getController();
+            controller.setKiosk(this);
+            controller.loadCartFromCSV();
+            controller.updateCartTable();
+
+            animateToCenter(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void showBookScene() throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/book_scene.fxml"));
-        Parent content = loader.load();
-        BookController controller = loader.getController();
-        controller.setKiosk(this);
+    public void showBookScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/book_scene.fxml"));
+            Parent content = loader.load();
 
-        animateToCenter(content);
+            BookController controller = loader.getController();
+            controller.setKiosk(this);
+
+            animateToCenter(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void showUniformScene() throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniform_scene.fxml"));
-        Parent content = loader.load();
-        UniformController controller = loader.getController();
-        controller.setKiosk(this);
+    public void showUniformScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/uniform_scene.fxml"));
+            Parent content = loader.load();
 
-        animateToCenter(content);
+            UniformController controller = loader.getController();
+            controller.setKiosk(this);
+
+            animateToCenter(content);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void showCheckoutScene() {
         try {
-            // Load the FXML file for the checkout scene
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/checkout.fxml"));
             Parent content = loader.load();
+
             CheckoutController controller = loader.getController();
             controller.setKiosk(this);
 
-            // Transition to checkout scene with animation
             animateToCenter(content);
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,8 +122,7 @@ public class Kiosk extends Application {
     }
 
     private void animateToCenter(Parent newContent) {
-        // Optional: Fade and slide old content out
-        Parent oldContent = (Parent) rootLayout.getCenter();
+        Node oldContent = rootLayout.getCenter();  // <-- use Node here
 
         if (oldContent != null) {
             TranslateTransition slideOut = new TranslateTransition(Duration.millis(200), oldContent);
@@ -150,6 +165,6 @@ public class Kiosk extends Application {
     }
 
     public void restart() {
-
+        // optionally clear temp.csv or do other reset logic
     }
 }

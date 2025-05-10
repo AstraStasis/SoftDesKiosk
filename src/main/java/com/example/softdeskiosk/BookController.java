@@ -8,22 +8,21 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import java.io.BufferedReader;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
-
+import java.nio.file.*;
 import java.util.ArrayList;
 
 public class BookController {
-    @FXML
-    private TextField searchBar;
-
-    @FXML
-    private FlowPane productGrid;
+    @FXML private TextField searchBar;
+    @FXML private FlowPane productGrid;
 
     private Kiosk kiosk;
-
     private final ArrayList<VBox> bookBoxes = new ArrayList<>();
 
     public void setKiosk(Kiosk kiosk) {
@@ -32,88 +31,87 @@ public class BookController {
 
     @FXML
     public void initialize() {
-        try {
-            InputStream is = getClass().getResourceAsStream("/books.csv"); // working dir: src/main/resources/books.csv
-            if (is == null) {
-                System.err.println("books.csv not found");
-                return;
+        // Load book list from CSV
+        try (InputStream is = getClass().getResourceAsStream("/books.csv")) {
+            if (is != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",", 3);
+                    if (parts.length < 3) continue;
+                    VBox box = createProductBox(parts[0], parts[1], parts[2]);
+                    productGrid.getChildren().add(box);
+                    bookBoxes.add(box);
+                }
             }
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] book = line.split(",", 3);
-                if (book.length < 3) continue;
-                VBox box = createProductBox(book[0], book[1], book[2]);
-                productGrid.getChildren().add(box);
-                bookBoxes.add(box);
-            }
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // Search filter
         searchBar.textProperty().addListener((obs, oldVal, newVal) -> {
             productGrid.getChildren().clear();
-            for (VBox box : bookBoxes) {
-                Text label = (Text) box.getChildren().get(1);
-                if (label.getText().toLowerCase().contains(newVal.toLowerCase())) {
-                    productGrid.getChildren().add(box);
+            for (VBox b : bookBoxes) {
+                Text t = (Text) b.getChildren().get(1);
+                if (t.getText().toLowerCase().contains(newVal.toLowerCase())) {
+                    productGrid.getChildren().add(b);
                 }
             }
         });
     }
 
-    private VBox createProductBox(String idStr, String nameStr, String priceStr) {
+    private VBox createProductBox(String id, String name, String price) {
         VBox box = new VBox(10);
-        box.setStyle("-fx-border-color: #ccc; -fx-border-width: 2px; -fx-background-color: #f9f9f9; -fx-border-radius: 10px; -fx-background-radius: 10px;");
+        box.setStyle("-fx-border-color:#ccc; -fx-background-color:#f9f9f9; -fx-border-radius:10; -fx-background-radius:10;");
         box.setPadding(new javafx.geometry.Insets(15));
         box.setPrefSize(240, 270);
         box.setAlignment(javafx.geometry.Pos.CENTER);
 
-        Image image;
-        InputStream imageStream = getClass().getResourceAsStream("/book_images/" + idStr + ".png");
-        if (imageStream != null) {
-            image = new Image(imageStream);
-        } else {
-            image = new Image(getClass().getResourceAsStream("/placeholder_img.png"));
-        }
+        // Image
+        InputStream imgIs = getClass().getResourceAsStream("/book_images/" + id + ".png");
+        Image img = new Image(imgIs != null ? imgIs : getClass().getResourceAsStream("/placeholder_img.png"));
+        ImageView iv = new ImageView(img);
+        iv.setFitHeight(100);
+        iv.setPreserveRatio(true);
 
-        ImageView imageView = new ImageView(image);
-        imageView.setFitHeight(100);
-        imageView.setPreserveRatio(true);
+        // Name & Price
+        Text tName = new Text(name);
+        Text tPrice = new Text("₱" + price);
 
-        Text name = new Text(nameStr);
-        Text price = new Text("₱" + priceStr);
+        // Order button
+        Button btn = new Button("Order");
+        btn.setMaxWidth(160);
+        btn.setOnAction(e -> {
+            // Append to temp.csv
+            try {
+                Path p = Paths.get("temp.csv");
+                try (BufferedWriter w = Files.newBufferedWriter(p, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                    w.write(id + "," + name + "," + price);
+                    w.newLine();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            // Update button UI
+            btn.setText("Ordered");
+            btn.setDisable(true);
+            // Return to main menu
+            try {
+                kiosk.showMainMenu();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
-        Button purchaseBtn = new Button("Order");
-        purchaseBtn.setMaxWidth(160);
-        purchaseBtn.setOnAction(e -> addToCart(idStr, nameStr, priceStr));
-
-        box.getChildren().addAll(imageView, name, price, purchaseBtn);
+        box.getChildren().addAll(iv, tName, tPrice, btn);
         return box;
-    }
-
-    private void addToCart(String id, String name, String price) {
-        try {
-            java.nio.file.Path path = java.nio.file.Paths.get("temp.csv");
-            java.nio.file.Files.write(
-                    path,
-                    (id + "," + name + "," + price + System.lineSeparator()).getBytes(java.nio.charset.StandardCharsets.UTF_8),
-                    java.nio.file.StandardOpenOption.CREATE,
-                    java.nio.file.StandardOpenOption.APPEND
-            );
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
     @FXML
     private void handleBackToMainMenu() {
         try {
-            if (kiosk != null) {
-                kiosk.showMainMenu();
-            }
+            kiosk.showMainMenu();
         } catch (Exception e) {
             e.printStackTrace();
         }
