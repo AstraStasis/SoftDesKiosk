@@ -51,3 +51,14 @@
 .exit-button:hover {
     -fx-background-color: #e53935;
 }
+.round-textfield {
+  -fx-background-radius: 20;
+  -fx-border-radius: 20;
+  -fx-padding: 6 12;
+  -fx-font-size: 16px;
+}
+.card-button {
+  -fx-background-color: #2e8b57;
+  -fx-text-fill: white;
+  -fx-background-radius: 20;
+}
