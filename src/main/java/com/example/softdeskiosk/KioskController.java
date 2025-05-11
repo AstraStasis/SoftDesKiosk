@@ -4,14 +4,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.print.PrinterJob;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,24 +21,23 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Optional;
 
 public class KioskController implements Initializable {
     private Kiosk kiosk;
 
-    // --- panes & table for checkout ---
-    @FXML private VBox   studentInfoPane;
-    @FXML private VBox   checkoutPane;
+    @FXML private VBox studentInfoPane;
+    @FXML private VBox checkoutPane;
     @FXML private TableView<Item> cartTable;
-    @FXML private TableColumn<Item, String>  itemColumn;
+    @FXML private TableColumn<Item, String> itemColumn;
     @FXML private TableColumn<Item, Integer> quantityColumn;
-    @FXML private TableColumn<Item, Double>  priceColumn;
+    @FXML private TableColumn<Item, Double> priceColumn;
     private final ObservableList<Item> cartItems = FXCollections.observableArrayList();
 
-    // --- student lookup inputs & labels ---
     @FXML private TextField yearField;
     @FXML private TextField idField;
 
@@ -47,7 +47,6 @@ public class KioskController implements Initializable {
     @FXML private Label latestEnrollmentLabel;
     @FXML private Label programLabel;
 
-    // --- student data map: "YYYY-ID" -> StudentInfo ---
     private final Map<String, StudentInfo> students = new HashMap<>();
 
     public void setKiosk(Kiosk kiosk) {
@@ -58,20 +57,18 @@ public class KioskController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         loadStudentData();
 
-        // Initialize labels blank but keep prefixes
+        // blank prefixes
         nameLabel.setText("Student Name: ");
         genderLabel.setText("Gender: ");
         yearLevelLabel.setText("Year Level: ");
         latestEnrollmentLabel.setText("Latest Enrollment: ");
         programLabel.setText("Program: ");
 
-        // hide checkout pane initially
         checkoutPane.setVisible(false);
         checkoutPane.setManaged(false);
         updateCartTable();
     }
 
-    /** Load student data from classpath resource students.csv */
     private void loadStudentData() {
         InputStream is = getClass().getResourceAsStream("/students.csv");
         if (is == null) {
@@ -79,19 +76,14 @@ public class KioskController implements Initializable {
             return;
         }
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String line = br.readLine(); // skip header
+            br.readLine(); // skip header
+            String line;
             while ((line = br.readLine()) != null) {
                 String[] f = line.split(",");
                 if (f.length >= 6) {
-                    String key = f[0].trim();
-                    StudentInfo info = new StudentInfo(
-                            f[1].trim(), // name
-                            f[2].trim(), // gender
-                            f[3].trim(), // year level
-                            f[4].trim(), // latest enrollment
-                            f[5].trim()  // program
-                    );
-                    students.put(key, info);
+                    students.put(f[0].trim(), new StudentInfo(
+                            f[1].trim(), f[2].trim(), f[3].trim(), f[4].trim(), f[5].trim()
+                    ));
                 }
             }
         } catch (IOException e) {
@@ -99,12 +91,9 @@ public class KioskController implements Initializable {
         }
     }
 
-    /** Load temp.csv into cartItems */
     public void loadCartFromCSV() {
         cartItems.clear();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(
-                        Files.newInputStream(Paths.get("temp.csv"))))) {
+        try (BufferedReader br = Files.newBufferedReader(Paths.get("temp.csv"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] f = line.split(",", 3);
@@ -118,14 +107,11 @@ public class KioskController implements Initializable {
                         break;
                     }
                 }
-                if (!found) {
-                    cartItems.add(new Item(name, 1, price));
-                }
+                if (!found) cartItems.add(new Item(name, 1, price));
             }
         } catch (IOException ignored) { }
     }
 
-    /** Wire up the table columns and items */
     public void updateCartTable() {
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
@@ -133,11 +119,10 @@ public class KioskController implements Initializable {
         cartTable.setItems(cartItems);
     }
 
-    /*--- Navigation buttons ---*/
-    @FXML private void goToBooks()     { safeRun(() -> kiosk.showBookScene()); }
-    @FXML private void goToUniforms()  { safeRun(() -> kiosk.showUniformScene()); }
-    @FXML private void goToRegiform()  { safeRun(() -> kiosk.showRegiformScene()); }
-    @FXML private void goToGrade()     { safeRun(() -> kiosk.showGradeScene()); }
+    @FXML private void goToBooks()    { safeRun(() -> kiosk.showBookScene()); }
+    @FXML private void goToUniforms(){ safeRun(() -> kiosk.showUniformScene()); }
+    @FXML private void goToRegiform(){ safeRun(() -> kiosk.showRegiformScene()); }
+    @FXML private void goToGrade()   { safeRun(() -> kiosk.showGradeScene()); }
 
     @FXML private void restartKiosk() {
         try { Files.deleteIfExists(Paths.get("temp.csv")); }
@@ -146,7 +131,6 @@ public class KioskController implements Initializable {
         updateCartTable();
     }
 
-    /** Show the checkout pane */
     @FXML private void goToCheckout() {
         studentInfoPane.setVisible(false);
         studentInfoPane.setManaged(false);
@@ -155,7 +139,6 @@ public class KioskController implements Initializable {
         updateCartTable();
     }
 
-    /** Back to student info card */
     @FXML private void showStudentInfoPane() {
         checkoutPane.setVisible(false);
         checkoutPane.setManaged(false);
@@ -163,56 +146,127 @@ public class KioskController implements Initializable {
         studentInfoPane.setManaged(true);
     }
 
-    /** Print-order button */
-    @FXML private void handlePrintSlip() {
-        System.out.println("Printing order slip...");
+    /** Build a print‐ready slip from current student + cart data */
+    private VBox buildPrintSlip() {
+        VBox slip = new VBox(10);
+        slip.setPadding(new Insets(20));
+        slip.setStyle("-fx-background-color: white;");
+
+        Label title = new Label("Your Order Slip");
+        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        Label date = new Label("Date: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        slip.getChildren().addAll(title, date, new Label(""));
+
+        // student info
+        slip.getChildren().addAll(
+                new Label(nameLabel.getText()),
+                new Label(genderLabel.getText()),
+                new Label(yearLevelLabel.getText()),
+                new Label(latestEnrollmentLabel.getText()),
+                new Label(programLabel.getText()),
+                new Label("")
+        );
+
+        // header row
+        HBox header = new HBox(50);
+        header.getChildren().addAll(new Label("Item"), new Label("Qty"), new Label("Price"));
+        header.setStyle("-fx-font-weight: bold; -fx-underline: true;");
+        slip.getChildren().add(header);
+
+        // item rows
+        for (Item it : cartItems) {
+            HBox row = new HBox(50);
+            row.getChildren().addAll(
+                    new Label(it.getItemName()),
+                    new Label(it.getQuantity().toString()),
+                    new Label(String.format("%.2f", it.getPrice()))
+            );
+            slip.getChildren().add(row);
+        }
+
+        // total
+        double total = cartItems.stream()
+                .mapToDouble(i -> i.getQuantity() * i.getPrice())
+                .sum();
+        slip.getChildren().add(new Label(""));
+        Label totalLabel = new Label("Total: ₱" + String.format("%.2f", total));
+        totalLabel.setStyle("-fx-font-size:16px; -fx-font-weight:bold;");
+        slip.getChildren().add(totalLabel);
+
+        return slip;
     }
 
-    /** Lookup student by entered number and display */
+    @FXML private void handlePrintSlip() {
+        // 1) build slip node
+        VBox printNode = buildPrintSlip();
+
+        // 2) send to printer
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null) {
+            System.err.println("No printers available");
+            return;
+        }
+        boolean success = job.printPage(printNode);
+        if (success) {
+            job.endJob();
+            System.out.println("Printed successfully");
+        } else {
+            System.err.println("Print failed");
+        }
+    }
+
     @FXML private void loadStudentInfo() {
         String year = yearField.getText().trim();
         String id   = idField.getText().trim();
-
-        // Validate input
-        if (year.isEmpty() || id.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING,
-                    "Student number is required.", ButtonType.OK);
-            alert.setHeaderText("Missing Input");
-            alert.showAndWait();
-            return;
-        }
-
         String key  = year + "-" + id;
+
         StudentInfo info = students.get(key);
         if (info != null) {
-            nameLabel.setText("Student Name: " + info.name);
-            genderLabel.setText("Gender: " + info.gender);
-            yearLevelLabel.setText("Year Level: " + info.yearLevel);
-            latestEnrollmentLabel.setText("Latest Enrollment: " + info.latestEnrollment);
-            programLabel.setText("Program: " + info.program);
+            displayStudentInfo(info);
+            kiosk.setCurrentStudentKey(key);
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR,
-                    "No student found for " + key, ButtonType.OK);
-            alert.setHeaderText("Invalid Student Number");
-            alert.showAndWait();
-
-            // Keep prefixes and clear details
+            // clear on bad lookup
             nameLabel.setText("Student Name: ");
             genderLabel.setText("Gender: ");
             yearLevelLabel.setText("Year Level: ");
             latestEnrollmentLabel.setText("Latest Enrollment: ");
             programLabel.setText("Program: ");
         }
-        // Show info pane and hide checkout
+
         studentInfoPane.setVisible(true);
         studentInfoPane.setManaged(true);
         checkoutPane.setVisible(false);
         checkoutPane.setManaged(false);
     }
 
-    private void safeRun(Runnable r) { try { r.run(); } catch (Exception e) { e.printStackTrace(); }}
+    public boolean hasStudent(String key) {
+        return students.containsKey(key);
+    }
 
-    /** Simple cart‐item model */
+    public void restoreStudentInfo(String key) {
+        StudentInfo info = students.get(key);
+        if (info != null) {
+            displayStudentInfo(info);
+            studentInfoPane.setVisible(true);
+            studentInfoPane.setManaged(true);
+            checkoutPane.setVisible(false);
+            checkoutPane.setManaged(false);
+        }
+    }
+
+    private void displayStudentInfo(StudentInfo info) {
+        nameLabel.setText("Student Name: " + info.name);
+        genderLabel.setText("Gender: " + info.gender);
+        yearLevelLabel.setText("Year Level: " + info.yearLevel);
+        latestEnrollmentLabel.setText("Latest Enrollment: " + info.latestEnrollment);
+        programLabel.setText("Program: " + info.program);
+    }
+
+    private void safeRun(Runnable r) {
+        try { r.run(); } catch (Exception e) { e.printStackTrace(); }
+    }
+
     public static class Item {
         private final String itemName;
         private int quantity;
@@ -228,7 +282,6 @@ public class KioskController implements Initializable {
         public void incrementQuantity() { quantity++; }
     }
 
-    /** Helper class for student info */
     private static class StudentInfo {
         String name, gender, yearLevel, latestEnrollment, program;
         StudentInfo(String n, String g, String y, String le, String p) {
