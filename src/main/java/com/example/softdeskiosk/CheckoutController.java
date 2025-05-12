@@ -31,6 +31,11 @@ public class CheckoutController {
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         qtyColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        cartTable.setEditable(false);
+        itemColumn.setReorderable(false);
+        qtyColumn.setReorderable(false);
+        priceColumn.setReorderable(false);
+
 
         loadCartFromCSV();
         cartTable.setItems(cartItems);

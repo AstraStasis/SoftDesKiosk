@@ -1,4 +1,6 @@
 package com.example.softdeskiosk;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
@@ -35,6 +37,14 @@ public class Kiosk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        try {
+            Files.write(Paths.get("temp.csv"), new byte[0]); // clear file contents
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("Business Affairs Office Kiosk");
+
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
