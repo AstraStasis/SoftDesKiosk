@@ -5,14 +5,20 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.print.PrinterJob;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+
+import javafx.geometry.Pos;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,6 +42,7 @@ public class KioskController implements Initializable {
     @FXML private TableColumn<Item, String> itemColumn;
     @FXML private TableColumn<Item, Integer> quantityColumn;
     @FXML private TableColumn<Item, Double> priceColumn;
+    @FXML private TableColumn<Item, Void> editColumn;
     private final ObservableList<Item> cartItems = FXCollections.observableArrayList();
 
     @FXML private TextField yearField;
@@ -48,26 +55,41 @@ public class KioskController implements Initializable {
     @FXML private Label programLabel;
 
     private final Map<String, StudentInfo> students = new HashMap<>();
+    private String menuButtonIconPath = null; // Path to icon image for menu button
 
     public void setKiosk(Kiosk kiosk) {
         this.kiosk = kiosk;
     }
 
     @Override
+
     public void initialize(URL location, ResourceBundle resources) {
         loadStudentData();
-
-        // blank prefixes
+        cartTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        itemColumn.setPrefWidth(200);
+        itemColumn.setMinWidth(150);
+        quantityColumn.setPrefWidth(50);
+        quantityColumn.setMinWidth(50);
+        priceColumn.setMinWidth(60);
+        priceColumn.setPrefWidth(80);
+        priceColumn.setMaxWidth(80);
+        editColumn.setMinWidth(50);
+        editColumn.setPrefWidth(50);
+        editColumn.setMaxWidth(50);
+        updateCartTable();
+        setupEditColumn();
         nameLabel.setText("Student Name: ");
         genderLabel.setText("Gender: ");
         yearLevelLabel.setText("Year Level: ");
         latestEnrollmentLabel.setText("Latest Enrollment: ");
         programLabel.setText("Program: ");
-
         checkoutPane.setVisible(false);
         checkoutPane.setManaged(false);
-        updateCartTable();
+        studentInfoPane.setVisible(true);
+        studentInfoPane.setManaged(true);
+        cartTable.setStyle("-fx-font-size: 18px;");
     }
+
 
     private void loadStudentData() {
         InputStream is = getClass().getResourceAsStream("/students.csv");
@@ -287,5 +309,136 @@ public class KioskController implements Initializable {
         StudentInfo(String n, String g, String y, String le, String p) {
             name = n; gender = g; yearLevel = y; latestEnrollment = le; program = p;
         }
+    }
+
+    private void setupEditColumn() {
+        editColumn.setCellFactory(col -> new javafx.scene.control.TableCell<Item, Void>() {
+            private final javafx.scene.control.Button menuButton = new javafx.scene.control.Button();
+            private final ContextMenu contextMenu = new ContextMenu();
+            private final MenuItem editItem = new MenuItem("Edit Quantity");
+            private final MenuItem removeItem = new MenuItem("Remove");
+            {
+                // Style the menu button to be a couple of pixels larger
+                menuButton.getStyleClass().add("menu-button");
+                // Set icon if provided
+                if (menuButtonIconPath != null) {
+                    try {
+                        Image img = new Image(menuButtonIconPath);
+                        ImageView iv = new ImageView(img);
+                        iv.setFitWidth(20);
+                        iv.setFitHeight(20);
+                        menuButton.setGraphic(iv);
+                        menuButton.setText("");
+                    } catch (Exception e) {
+                        menuButton.setText("⋮");
+                    }
+                } else {
+                    menuButton.setText("⋮");
+                }
+                editItem.setOnAction(e -> {
+                    Item item = getTableView().getItems().get(getIndex());
+                    handleEditQuantity(item);
+                });
+                removeItem.setOnAction(e -> {
+                    Item item = getTableView().getItems().get(getIndex());
+                    handleRemoveItem(item);
+                });
+                contextMenu.getItems().addAll(editItem, removeItem);
+                menuButton.setOnAction(e -> {
+                    contextMenu.show(menuButton, javafx.geometry.Side.BOTTOM, 0, 0);
+                });
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    // Re-apply icon if needed
+                    if (menuButtonIconPath != null) {
+                        try {
+                            Image img = new Image(menuButtonIconPath);
+                            ImageView iv = new ImageView(img);
+                            iv.setFitWidth(20);
+                            iv.setFitHeight(20);
+                            menuButton.setGraphic(iv);
+                            menuButton.setText("");
+                        } catch (Exception e) {
+                            menuButton.setText("⋮");
+                        }
+                    } else {
+                        menuButton.setText("⋮");
+                        menuButton.setGraphic(null);
+                    }
+                    setGraphic(menuButton);
+                }
+            }
+        });
+    }
+
+    private void handleEditQuantity(Item item) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        Label title = new Label("Edit quantity for: " + item.getItemName());
+        title.getStyleClass().add("card-text");
+        Label qtyLabel = new Label(String.valueOf(item.getQuantity()));
+        qtyLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+        Button minus = new Button("–");
+        Button plus  = new Button("+");
+        minus.getStyleClass().add("button");
+        plus.getStyleClass().add("button");
+        minus.setOnAction(e -> {
+            int q = Integer.parseInt(qtyLabel.getText());
+            if (q > 1) qtyLabel.setText(String.valueOf(q - 1));
+        });
+        plus.setOnAction(e -> {
+            int q = Integer.parseInt(qtyLabel.getText());
+            qtyLabel.setText(String.valueOf(q + 1));
+        });
+        Button ok = new Button("OK");
+        ok.getStyleClass().add("button");
+        ok.setOnAction(e -> {
+            item.quantity = Integer.parseInt(qtyLabel.getText());
+            updateTempCSV();
+            cartTable.refresh();
+            dialog.close();
+        });
+        HBox controls = new HBox(20, minus, qtyLabel, plus);
+        controls.setAlignment(Pos.CENTER);
+        VBox layout = new VBox(30, title, controls, ok);
+        layout.setPadding(new Insets(30));
+        layout.setAlignment(Pos.CENTER);
+        Scene scene = new Scene(layout, 400, 250);
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        dialog.setScene(scene);
+        dialog.setTitle("Edit Quantity");
+        dialog.showAndWait();
+    }
+
+
+
+    private void handleRemoveItem(Item item) {
+        cartItems.remove(item);
+        updateCartTable();
+        updateTempCSV();
+        cartTable.refresh();
+
+    }
+
+    private void updateTempCSV() {
+        try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(java.nio.file.Paths.get("temp.csv"))) {
+            for (Item it : cartItems) {
+                for (int i = 0; i < it.getQuantity(); i++) {
+                    writer.write("," + it.getItemName() + "," + it.getPrice());
+                    writer.newLine();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setMenuButtonIconPath(String path) {
+        this.menuButtonIconPath = path;
     }
 }

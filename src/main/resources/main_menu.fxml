@@ -136,6 +136,7 @@
                             <TableColumn fx:id="itemColumn"     text="Item"     prefWidth="200"/>
                             <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="120"/>
                             <TableColumn fx:id="priceColumn"    text="Price"    prefWidth="120"/>
+                            <TableColumn fx:id="editColumn"     text="Edit"     prefWidth="120"/>
                         </columns>
                     </TableView>
                     <HBox spacing="10" alignment="CENTER">

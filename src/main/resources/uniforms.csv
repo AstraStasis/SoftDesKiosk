@@ -1,7 +1,46 @@
-U101,PE Shirt,355.00
-U102,PE Pants,450.00
-U103,Women's Blouse,525.00
-U104,Women's Skirt,425.00
-U105,Women's Pants,510.00
-U106,Men's Polo,515.00
-U107,Men's Pants,530.00
+U101,PE Shirt Small,355.00
+U102,PE Shirt Medium,355.00
+U103,PE Shirt Large,355.00
+U104,PE Shirt XL,355.00
+U105,PE Shirt 2XL,355.00
+U106,PE Shirt 3XL,355.00
+
+U107,PE Pants Small,450.00
+U108,PE Pants Medium,450.00
+U109,PE Pants Large,450.00
+U110,PE Pants XL,450.00
+U111,PE Pants 2XL,450.00
+U112,PE Pants 3XL,450.00
+
+U113,Women's Blouse Small,525.00
+U114,Women's Blouse Medium,525.00
+U115,Women's Blouse Large,525.00
+U116,Women's Blouse XL,525.00
+U117,Women's Blouse 2XL,525.00
+
+U118,Women's Skirt Small,425.00
+U119,Women's Skirt Medium,425.00
+U120,Women's Skirt Large,425.00
+U121,Women's Skirt XL,425.00
+U122,Women's Skirt 2XL,425.00
+
+U123,Women's Pants Small,510.00
+U124,Women's Pants Medium,510.00
+U125,Women's Pants Large,510.00
+U126,Women's Pants XL,510.00
+U127,Women's Pants 2XL,510.00
+U128,Women's Pants 3XL,510.00
+
+U129,Men's Polo Small,515.00
+U130,Men's Polo Medium,515.00
+U131,Men's Polo Large,515.00
+U132,Men's Polo XL,515.00
+U133,Men's Polo 2XL,515.00
+
+U134,Men's Pants Small,530.00
+U135,Men's Pants Medium,530.00
+U136,Men's Pants Large,530.00
+U137,Men's Pants XL,530.00
+U138,Men's Pants 2XL,530.00
+U139,Men's Pants 3XL,530.00
+U140,Men's Pants 4XL,530.00
