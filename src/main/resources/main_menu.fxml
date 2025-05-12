@@ -140,10 +140,19 @@
                         </columns>
                     </TableView>
                     <HBox spacing="10" alignment="CENTER">
-                        <Button text="Print Order Slip" onAction="#handlePrintSlip" styleClass="button"/>
-                        <Button text="Back to Info"     onAction="#showStudentInfoPane" styleClass="button"/>
-                        <Button text="Reset"            onAction="#restartKiosk"   styleClass="button"/>
+                        <Button text="Back"
+                                onAction="#showStudentInfoPane"
+                                styleClass="button"/>
+                        <Button text="Proceed to Online Payment"
+                                onAction="#proceedToOnlinePayment"
+                                styleClass="button"/>
+                        <Button text="Pay at the Counter"
+                                onAction="#payAtCounter"
+                                styleClass="button"/>
+
+
                     </HBox>
+
                 </children>
             </VBox>
 

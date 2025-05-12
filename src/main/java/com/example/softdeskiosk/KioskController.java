@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.print.PrinterJob;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -49,6 +50,8 @@ public class KioskController implements Initializable {
     @FXML private TextField idField;
 
     @FXML private Label nameLabel;
+    private boolean isPaid;
+
     @FXML private Label genderLabel;
     @FXML private Label yearLevelLabel;
     @FXML private Label latestEnrollmentLabel;
@@ -59,6 +62,56 @@ public class KioskController implements Initializable {
 
     public void setKiosk(Kiosk kiosk) {
         this.kiosk = kiosk;
+    }
+    @FXML private void proceedToOnlinePayment() {
+        Stage qrStage = new Stage();
+        qrStage.initModality(Modality.APPLICATION_MODAL);
+        qrStage.initOwner(((Node) yearField).getScene().getWindow());
+        qrStage.setTitle("Scan to Pay");
+        ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/qr_example.png")));
+        qrView.setPreserveRatio(true);
+        qrView.setFitWidth(200);
+        Button back = new Button("Back");
+        back.getStyleClass().add("payment-button");
+        back.setMinWidth(100);
+        back.setOnAction(e -> qrStage.close());
+        Button validate = new Button("Validate Payment");
+        validate.getStyleClass().add("payment-button");
+        validate.setMinWidth(300);
+        HBox buttons = new HBox(20, back, validate);
+        buttons.setAlignment(Pos.CENTER);
+        VBox layout = new VBox(20, qrView, buttons);
+        layout.setAlignment(Pos.CENTER);
+        layout.setPadding(new Insets(20));
+        layout.getStyleClass().add("root");
+        Scene scene = new Scene(layout, 540, 480);
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        validate.setOnAction(e -> {
+            isPaid = true;
+            Label msg = new Label("Printing paid orderslip");
+            msg.getStyleClass().add("card-text");
+            layout.getChildren().add(msg);
+            handlePrintSlip();
+            try { Files.deleteIfExists(Paths.get("temp.csv")); } catch (IOException ex) { ex.printStackTrace(); }
+            yearField.clear(); idField.clear();
+            nameLabel.setText("Student Name: ");
+            genderLabel.setText("Gender: ");
+            yearLevelLabel.setText("Year Level: ");
+            latestEnrollmentLabel.setText("Latest Enrollment: ");
+            programLabel.setText("Program: ");
+            qrStage.close();
+        });
+        qrStage.setScene(scene);
+        qrStage.centerOnScreen();
+        qrStage.showAndWait();
+    }
+
+
+
+
+    @FXML private void payAtCounter() {
+        isPaid = false;
+        handlePrintSlip();
     }
 
     @Override
@@ -215,7 +268,9 @@ public class KioskController implements Initializable {
         Label totalLabel = new Label("Total: ₱" + String.format("%.2f", total));
         totalLabel.setStyle("-fx-font-size:16px; -fx-font-weight:bold;");
         slip.getChildren().add(totalLabel);
-
+        Label statusLabel = new Label("Payment Status: " + (isPaid ? "Paid" : "Unpaid"));
+        statusLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold;");
+        slip.getChildren().add(statusLabel);
         return slip;
     }
 

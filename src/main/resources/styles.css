@@ -85,11 +85,18 @@
   -fx-border-color: #cccccc;
 }
 
+.payment-button {
+  -fx-min-width: 140px;
+  -fx-min-height: 48px;
+}
+
+
 /* vertical lines: faint 20% opacity */
 .table-view .table-cell {
   -fx-border-width: 0 1 0 0;
   -fx-border-color: rgba(204,204,204,0.1);
 }
+
 /* header styling */
 .table-view .column-header-background {
   -fx-background-color: #4CAF50;    /* deep green header */
