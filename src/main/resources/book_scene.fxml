@@ -7,17 +7,17 @@
 
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.softdeskiosk.BookController" stylesheets="@styles.css">
-    <VBox spacing="20.0" alignment="TOP_CENTER" AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
-        <TextField fx:id="searchBar" promptText="Search books..." maxWidth="400">
-            <VBox.margin>
-                <Insets top="20.0"/>
-            </VBox.margin>
-        </TextField>
-
+    <VBox spacing="20.0" alignment="TOP_CENTER"
+          AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+          AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+        <padding>
+            <Insets top="20" right="0" bottom="20" left="0"/>
+        </padding>
+        <TextField fx:id="searchBar" promptText="Search books..." maxWidth="400"/>
         <ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" VBox.vgrow="ALWAYS">
             <FlowPane fx:id="productGrid" hgap="30" vgap="30" alignment="CENTER"/>
         </ScrollPane>
-
         <Button text="Back" onAction="#handleBackToMainMenu" prefWidth="200"/>
     </VBox>
+
 </AnchorPane>
