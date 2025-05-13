@@ -18,6 +18,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
+
 
 import java.io.IOException;
 
@@ -45,16 +48,25 @@ public class Kiosk extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
+        // replace with:
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
         rootLayout = new BorderPane();
         rootLayout.setTop(createHeader());
 
-        Scene scene = new Scene(rootLayout, 1920, 1080);
+// get the actual usable screen bounds
+        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        double w = bounds.getWidth();
+        double h = bounds.getHeight();
+
+// create scene to fill the screen
+        Scene scene = new Scene(rootLayout, w, h);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
         primaryStage.show();
+
 
         showMainMenu();
     }
