@@ -48,7 +48,7 @@ public class Kiosk extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
-        // replace with:
+
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Business Affairs Office Kiosk");
 
