@@ -24,16 +24,16 @@
         <Label text="Grade Slip Request" styleClass="instruction-header"/>
 
         <VBox spacing="8">
-            <Label text="1️⃣ Submit the INTENT LETTER addressed to SFAU Head. Include:" styleClass="instruction-text"/>
+            <Label text="1.) Submit the INTENT LETTER addressed to SFAU Head. Include:" styleClass="instruction-text"/>
             <Label text="   • Date" styleClass="instruction-text"/>
             <Label text="   • SFAU Head" styleClass="instruction-text"/>
             <Label text="   • Student Name and Number" styleClass="instruction-text"/>
             <Label text="   • Course" styleClass="instruction-text"/>
             <Label text="   • School" styleClass="instruction-text"/>
             <Label text="   • Year Level, Semester, and Purpose below" styleClass="instruction-text"/>
-            <Label text="2️⃣ Bring a PRINTED COPY of your Scholarship Requirements." styleClass="instruction-text"/>
-            <Label text="3️⃣ Get the RELEASING SLIP for release." styleClass="instruction-text"/>
-            <Label text="4️⃣ Proceed to MISO window and SUBMIT the Releasing Slip." styleClass="instruction-text"/>
+            <Label text="2.) Bring a PRINTED COPY of your Scholarship Requirements." styleClass="instruction-text"/>
+            <Label text="3.) Get the RELEASING SLIP for release." styleClass="instruction-text"/>
+            <Label text="4.) Proceed to MISO window and SUBMIT the Releasing Slip." styleClass="instruction-text"/>
         </VBox>
 
         <HBox spacing="10">
