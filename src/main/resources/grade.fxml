@@ -1,26 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.softdeskiosk.GradeController"
             stylesheets="@styles.css">
 
-    <VBox alignment="CENTER" spacing="20"
-          AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="50"
-          AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50">
+    <VBox spacing="15"
+          AnchorPane.topAnchor="20"
+          AnchorPane.bottomAnchor="20"
+          AnchorPane.leftAnchor="20"
+          AnchorPane.rightAnchor="20">
         <padding>
             <Insets top="20" bottom="20" left="20" right="20"/>
         </padding>
 
-        <Label text="Grade Slip (Placeholder)" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+        <Label text="Grade Slip Request" styleClass="instruction-header"/>
 
-        <!-- You can drop in real form fields here later -->
-        <Label text="(Form fields go here)" />
+        <VBox spacing="8">
+            <Label text="1️⃣ Submit the INTENT LETTER addressed to SFAU Head. Include:" styleClass="instruction-text"/>
+            <Label text="   • Date" styleClass="instruction-text"/>
+            <Label text="   • SFAU Head" styleClass="instruction-text"/>
+            <Label text="   • Student Name and Number" styleClass="instruction-text"/>
+            <Label text="   • Course" styleClass="instruction-text"/>
+            <Label text="   • School" styleClass="instruction-text"/>
+            <Label text="   • Year Level, Semester, and Purpose below" styleClass="instruction-text"/>
+            <Label text="2️⃣ Bring a PRINTED COPY of your Scholarship Requirements." styleClass="instruction-text"/>
+            <Label text="3️⃣ Get the RELEASING SLIP for release." styleClass="instruction-text"/>
+            <Label text="4️⃣ Proceed to MISO window and SUBMIT the Releasing Slip." styleClass="instruction-text"/>
+        </VBox>
 
-        <Button text="Back to Main Menu" onAction="#handleBackToMainMenu" styleClass="button"/>
+        <HBox spacing="10">
+            <ComboBox fx:id="yearLevelBox" promptText="Year Level" styleClass="modern-combo"/>
+            <ComboBox fx:id="semesterBox"   promptText="Semester"   styleClass="modern-combo"/>
+        </HBox>
+
+        <ComboBox fx:id="purposeBox" promptText="Select Purpose" styleClass="modern-combo"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <HBox spacing="10">
+            <Button text="Back to Main Menu"
+                    onAction="#handleBackToMainMenu"
+                    styleClass="button"/>
+            <Button text="Print Grade Slip Letter"
+                    onAction="#handlePrintGradeLetter"
+                    styleClass="button"/>
+        </HBox>
     </VBox>
 </AnchorPane>
