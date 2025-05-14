@@ -220,3 +220,10 @@
     -fx-font-weight: bold;
 }
 
+/* styles.css */
+.dialog-quantity {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+

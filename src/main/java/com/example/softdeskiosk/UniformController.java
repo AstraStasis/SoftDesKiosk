@@ -1,7 +1,10 @@
+
 package com.example.softdeskiosk;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,6 +23,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -66,10 +70,16 @@ public class UniformController {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(",", 3);
-                    if (parts.length < 3) continue;
+                    String[] parts = line.split(",", 5);
+                    if (parts.length < 5) continue;
 
-                    Uniform u = new Uniform(parts[0], parts[1], parts[2]);
+                    Uniform u = new Uniform(
+                            parts[0],
+                            parts[1],
+                            parts[2],
+                            new BigDecimal(parts[3]),
+                            Integer.parseInt(parts[4])
+                    );
                     uniformMap.computeIfAbsent(u.getClassification(), k -> new ArrayList<>()).add(u);
                 }
             }
@@ -82,6 +92,7 @@ public class UniformController {
         productGrid.getChildren().clear();
         for (String classification : uniformMap.keySet()) {
             productGrid.getChildren().add(createClassificationBox(classification));
+
         }
 
     }
@@ -99,34 +110,40 @@ public class UniformController {
         if (imgUrl == null) {
             imgUrl = getClass().getResource("/placeholder_img.png");
         }
-
-        // 3) Inline the background‐image style with double‑quotes
         String cssUrl = imgUrl.toExternalForm();
-        btn.setStyle(
-                "-fx-background-image: url(\"" + cssUrl + "\");"
-        );
+        btn.setStyle("-fx-background-image: url(\"" + cssUrl + "\");");
 
-        // 4) Entry pop‑in animation
+        // 3) Initial state for animation
         btn.setOpacity(0);
         btn.setScaleX(0.8);
         btn.setScaleY(0.8);
+        btn.setTranslateY(20);    // start 20px lower
+
+        // 4) Build individual transitions
         ScaleTransition popIn = new ScaleTransition(Duration.millis(250), btn);
         popIn.setFromX(0.8); popIn.setFromY(0.8);
-        popIn.setToX(1.0);  popIn.setToY(1.0);
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(250), btn);
-        fadeIn.setFromValue(0.0); fadeIn.setToValue(1.0);
-        popIn.play();
-        fadeIn.play();
+        popIn.setToX(1.0);   popIn.setToY(1.0);
 
-        // 5) Hover scale animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(250), btn);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        TranslateTransition slideUp = new TranslateTransition(Duration.millis(250), btn);
+        slideUp.setFromY(20);
+        slideUp.setToY(0);
+
+        // 5) Play all three in parallel
+        new ParallelTransition(popIn, fadeIn, slideUp).play();
+
+        // 6) Hover scale animation
         ScaleTransition hoverEnter = new ScaleTransition(Duration.millis(150), btn);
         hoverEnter.setToX(1.05); hoverEnter.setToY(1.05);
         ScaleTransition hoverExit = new ScaleTransition(Duration.millis(150), btn);
-        hoverExit.setToX(1.0);  hoverExit.setToY(1.0);
+        hoverExit.setToX(1.0);   hoverExit.setToY(1.0);
         btn.setOnMouseEntered(e -> hoverEnter.playFromStart());
         btn.setOnMouseExited (e -> hoverExit.playFromStart());
 
-        // 6) Click handling (transition to sizes)
+        // 7) Click handling (transition to sizes)
         btn.setOnAction(e -> {
             FadeTransition ft = new FadeTransition(Duration.millis(300), productGrid);
             ft.setFromValue(1.0);
@@ -137,6 +154,7 @@ public class UniformController {
 
         return btn;
     }
+
 
 
 
@@ -156,35 +174,37 @@ public class UniformController {
 
     private VBox createUniformBox(Uniform u) {
         VBox box = new VBox(10);
-        box.setStyle("-fx-border-color:#ccc;"
-                + "-fx-background-color:#f9f9f9;"
-                + "-fx-border-radius:10;"
-                + "-fx-background-radius:10;");
+        box.setStyle("-fx-border-color:#ccc; -fx-background-color:#f9f9f9; -fx-border-radius:10; -fx-background-radius:10;");
         box.setPadding(new Insets(15));
         box.setAlignment(Pos.CENTER);
 
-        // Text details only (no image)
         Text tSize = new Text("Size: " + u.getSize());
         tSize.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
 
         Text tPrice = new Text("Price: ₱" + u.getPrice());
         tPrice.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
+        Text tStock = new Text(u.isInStock() ? "In stock: " + u.getStock() : "Not in stock");
+        tStock.setStyle("-fx-font-size: 16px;");
 
-        Button btn = new Button("Order");
+        Button btn = new Button(u.isInStock() ? "Order" : "Unavailable");
+        btn.setDisable(!u.isInStock());
         btn.setPrefHeight(40);
         btn.setMaxWidth(160);
-        btn.setOnAction(e -> {
-            appendToTemp(u);
-            btn.setText("Ordered");
-            btn.setDisable(true);
-            try { kiosk.showMainMenu(); } catch (Exception ex) { ex.printStackTrace(); }
-        });
 
-        box.getChildren().addAll(tSize, tPrice, btn);
+        if (u.isInStock()) {
+            btn.setOnAction(e -> {
+                appendToTemp(u);
+                u.decrementStock(); // Optional: track stock live during session
+                btn.setText("Ordered");
+                btn.setDisable(true);
+                try { kiosk.showMainMenu(); } catch (Exception ex) { ex.printStackTrace(); }
+            });
+        }
+
+        box.getChildren().addAll(tSize, tPrice, tStock, btn);
         return box;
     }
-
 
     private void appendToTemp(Uniform u) {
         Path p = Paths.get("temp.csv");
@@ -206,3 +226,4 @@ public class UniformController {
         catch (Exception e) { e.printStackTrace(); }
     }
 }
+
