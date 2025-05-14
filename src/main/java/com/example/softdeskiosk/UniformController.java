@@ -3,6 +3,7 @@ package com.example.softdeskiosk;
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -11,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 import java.io.BufferedReader;
@@ -18,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,36 +83,51 @@ public class UniformController {
         for (String classification : uniformMap.keySet()) {
             productGrid.getChildren().add(createClassificationBox(classification));
         }
+
     }
 
-    private VBox createClassificationBox(String classification) {
-        VBox box = new VBox(10);
-        box.setStyle("-fx-border-color:#ccc; -fx-background-color:#f0f0f0; -fx-border-radius:10; -fx-background-radius:10;");
-        box.setPadding(new javafx.geometry.Insets(15));
-        box.setPrefSize(200, 260);  // increased height for better visibility
-        box.setAlignment(Pos.CENTER);
+    private Button createClassificationBox(String classification) {
+        // 1) Create a button and style it
+        Button btn = new Button(classification);
+        btn.getStyleClass().add("classification-box");
+        btn.setTextAlignment(TextAlignment.CENTER);
 
-        // Hover animation (scale up/down)
-        ScaleTransition hoverEnter = new ScaleTransition(Duration.millis(200), box);
-        hoverEnter.setToX(1.05);
-        hoverEnter.setToY(1.05);
-        ScaleTransition hoverExit = new ScaleTransition(Duration.millis(200), box);
-        hoverExit.setToX(1.0);
-        hoverExit.setToY(1.0);
-        box.setOnMouseEntered(e -> hoverEnter.playFromStart());
-        box.setOnMouseExited(e -> hoverExit.playFromStart());
+        // 2) Load the image URL (or fallback)
+        URL imgUrl = getClass().getResource(
+                "/uniform_images/" + classification.replaceAll("\\s+", "_") + ".png"
+        );
+        if (imgUrl == null) {
+            imgUrl = getClass().getResource("/placeholder_img.png");
+        }
 
-        String imgPath = "/uniform_images/" + classification.replaceAll("\\s+", "_") + ".png";
-        InputStream imgIs = getClass().getResourceAsStream(imgPath);
-        Image img = new Image(imgIs != null ? imgIs : getClass().getResourceAsStream("/placeholder_img.png"));
-        ImageView iv = new ImageView(img);
-        iv.setFitHeight(120);
-        iv.setPreserveRatio(true);
+        // 3) Inline the background‐image style with double‑quotes
+        String cssUrl = imgUrl.toExternalForm();
+        btn.setStyle(
+                "-fx-background-image: url(\"" + cssUrl + "\");"
+        );
 
-        Text name = new Text(classification);
+        // 4) Entry pop‑in animation
+        btn.setOpacity(0);
+        btn.setScaleX(0.8);
+        btn.setScaleY(0.8);
+        ScaleTransition popIn = new ScaleTransition(Duration.millis(250), btn);
+        popIn.setFromX(0.8); popIn.setFromY(0.8);
+        popIn.setToX(1.0);  popIn.setToY(1.0);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(250), btn);
+        fadeIn.setFromValue(0.0); fadeIn.setToValue(1.0);
+        popIn.play();
+        fadeIn.play();
 
-        // Click to fade out then show sizes
-        box.setOnMouseClicked(e -> {
+        // 5) Hover scale animation
+        ScaleTransition hoverEnter = new ScaleTransition(Duration.millis(150), btn);
+        hoverEnter.setToX(1.05); hoverEnter.setToY(1.05);
+        ScaleTransition hoverExit = new ScaleTransition(Duration.millis(150), btn);
+        hoverExit.setToX(1.0);  hoverExit.setToY(1.0);
+        btn.setOnMouseEntered(e -> hoverEnter.playFromStart());
+        btn.setOnMouseExited (e -> hoverExit.playFromStart());
+
+        // 6) Click handling (transition to sizes)
+        btn.setOnAction(e -> {
             FadeTransition ft = new FadeTransition(Duration.millis(300), productGrid);
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
@@ -117,9 +135,10 @@ public class UniformController {
             ft.play();
         });
 
-        box.getChildren().addAll(iv, name);
-        return box;
+        return btn;
     }
+
+
 
     private void showSizesFor(String classification) {
         productGrid.getChildren().clear();
@@ -137,20 +156,20 @@ public class UniformController {
 
     private VBox createUniformBox(Uniform u) {
         VBox box = new VBox(10);
-        box.setStyle("-fx-border-color:#ccc; -fx-background-color:#f9f9f9; -fx-border-radius:10; -fx-background-radius:10;");
-        box.setPadding(new javafx.geometry.Insets(15));
-        box.setPrefSize(240, 270);
+        box.setStyle("-fx-border-color:#ccc;"
+                + "-fx-background-color:#f9f9f9;"
+                + "-fx-border-radius:10;"
+                + "-fx-background-radius:10;");
+        box.setPadding(new Insets(15));
         box.setAlignment(Pos.CENTER);
 
-        String imgPath = "/uniform_images/" + u.getCode() + ".png";
-        InputStream imgIs = getClass().getResourceAsStream(imgPath);
-        Image img = new Image(imgIs != null ? imgIs : getClass().getResourceAsStream("/placeholder_img.png"));
-        ImageView iv = new ImageView(img);
-        iv.setFitHeight(100);
-        iv.setPreserveRatio(true);
+        // Text details only (no image)
+        Text tSize = new Text("Size: " + u.getSize());
+        tSize.setStyle("-fx-font-size: 30px; -fx-font-weight: bold;");
 
-        Text tName = new Text(u.getSize());
-        Text tPrice = new Text("₱" + u.getPrice());
+        Text tPrice = new Text("Price: ₱" + u.getPrice());
+        tPrice.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+
 
         Button btn = new Button("Order");
         btn.setPrefHeight(40);
@@ -162,15 +181,19 @@ public class UniformController {
             try { kiosk.showMainMenu(); } catch (Exception ex) { ex.printStackTrace(); }
         });
 
-        box.getChildren().addAll(iv, tName, tPrice, btn);
+        box.getChildren().addAll(tSize, tPrice, btn);
         return box;
     }
+
 
     private void appendToTemp(Uniform u) {
         Path p = Paths.get("temp.csv");
         try (BufferedWriter w = Files.newBufferedWriter(p, StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            w.write(u.getCode() + "," + u.getClassification() + " " + u.getSize() + "," + u.getPrice());
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND)) {
+            w.write(u.getCode() + "," +
+                    u.getClassification() + " " + u.getSize() + "," +
+                    u.getPrice());
             w.newLine();
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -179,6 +202,7 @@ public class UniformController {
 
     @FXML
     private void handleBackToMainMenu() {
-        try { kiosk.showMainMenu(); } catch (Exception e) { e.printStackTrace(); }
+        try { kiosk.showMainMenu(); }
+        catch (Exception e) { e.printStackTrace(); }
     }
 }

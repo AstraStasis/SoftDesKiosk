@@ -4,10 +4,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.HPos;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.geometry.Insets;
@@ -223,56 +226,49 @@ public class KioskController implements Initializable {
 
     /** Build a print‐ready slip from current student + cart data */
     private VBox buildPrintSlip() {
-        VBox slip = new VBox(10);
-        slip.setPadding(new Insets(20));
-        slip.setStyle("-fx-background-color: white;");
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(20));
+        grid.setVgap(8);
+        grid.setHgap(20);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(60);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(20);
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(20);
+        col2.setHalignment(HPos.CENTER);
+        col3.setHalignment(HPos.RIGHT);
+        grid.getColumnConstraints().addAll(col1, col2, col3);
 
-        Label title = new Label("Your Order Slip");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        Label date = new Label("Date: " +
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        slip.getChildren().addAll(title, date, new Label(""));
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        grid.add(new Label("Your Order Slip"), 0, 0, 3, 1);
+        grid.add(new Label("Date: " + LocalDateTime.now().format(fmt)), 0, 1, 3, 1);
 
-        // student info
-        slip.getChildren().addAll(
-                new Label(nameLabel.getText()),
-                new Label(genderLabel.getText()),
-                new Label(yearLevelLabel.getText()),
-                new Label(latestEnrollmentLabel.getText()),
-                new Label(programLabel.getText()),
-                new Label("")
-        );
+        grid.add(new Label(nameLabel.getText()), 0, 2, 3, 1);
+        grid.add(new Label(genderLabel.getText()), 0, 3, 3, 1);
+        grid.add(new Label(yearLevelLabel.getText()), 0, 4, 3, 1);
 
-        // header row
-        HBox header = new HBox(50);
-        header.getChildren().addAll(new Label("Item"), new Label("Qty"), new Label("Price"));
-        header.setStyle("-fx-font-weight: bold; -fx-underline: true;");
-        slip.getChildren().add(header);
+        grid.add(new Label("Item"), 0, 6);
+        grid.add(new Label("Qty"), 1, 6);
+        grid.add(new Label("Price"), 2, 6);
 
-        // item rows
+        int row = 7;
         for (Item it : cartItems) {
-            HBox row = new HBox(50);
-            row.getChildren().addAll(
-                    new Label(it.getItemName()),
-                    new Label(it.getQuantity().toString()),
-                    new Label(String.format("%.2f", it.getPrice()))
-            );
-            slip.getChildren().add(row);
+            grid.add(new Label(it.getItemName()), 0, row);
+            grid.add(new Label(it.getQuantity().toString()), 1, row);
+            grid.add(new Label(String.format("₱%.2f", it.getPrice())), 2, row++);
         }
 
-        // total
-        double total = cartItems.stream()
-                .mapToDouble(i -> i.getQuantity() * i.getPrice())
-                .sum();
-        slip.getChildren().add(new Label(""));
-        Label totalLabel = new Label("Total: ₱" + String.format("%.2f", total));
-        totalLabel.setStyle("-fx-font-size:16px; -fx-font-weight:bold;");
-        slip.getChildren().add(totalLabel);
-        Label statusLabel = new Label("Payment Status: " + (isPaid ? "Paid" : "Unpaid"));
-        statusLabel.setStyle("-fx-font-size:14px; -fx-font-weight:bold;");
-        slip.getChildren().add(statusLabel);
+        double total = cartItems.stream().mapToDouble(i -> i.getQuantity() * i.getPrice()).sum();
+        grid.add(new Label("Total:"), 1, row);
+        grid.add(new Label(String.format("₱%.2f", total)), 2, row);
+        grid.add(new Label("Status:" + (isPaid ? " Paid" : " Unpaid")), 1, ++row, 2, 1);
+
+        VBox slip = new VBox(grid);
+        slip.setStyle("-fx-background-color:white; -fx-font-size:14px;");
         return slip;
     }
+
 
     @FXML private void handlePrintSlip() {
         // 1) build slip node
