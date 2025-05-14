@@ -152,7 +152,7 @@
   -fx-font-weight: bold;
   -fx-border-radius: 12px;
   -fx-background-radius: 12px;
-  -fx-effect: drop shadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 2);
+  -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 2);
   -fx-transition: all 200ms ease-in-out;
   -fx-font-size: 50px;        /* adjust up or down as you like */
    -fx-font-weight: bold;
