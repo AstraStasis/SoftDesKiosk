@@ -187,7 +187,7 @@ public class UniformController {
         Text tStock = new Text(u.isInStock() ? "In stock: " + u.getStock() : "Not in stock");
         tStock.setStyle("-fx-font-size: 16px;");
 
-        Button btn = new Button(u.isInStock() ? "Order" : "Unavailable");
+        Button btn = new Button(u.isInStock() ? "Order" : "No Stocks");
         btn.setDisable(!u.isInStock());
         btn.setPrefHeight(40);
         btn.setMaxWidth(160);

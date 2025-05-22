@@ -225,5 +225,37 @@
     -fx-font-size: 30px;
     -fx-font-weight: bold;
 }
+/* Vertical Navigation Styles */
+#navButtons {
+    -fx-alignment: center;
+    -fx-spacing: 20px;
+    -fx-padding: 0 0 20px 0;
+}
 
+.nav-button {
+    -fx-pref-width: 200px;
+    -fx-pref-height: 80px;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-background-color: #c9b63c;
+    -fx-text-fill: #2d2d2d;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 1);
+}
+
+.nav-button:hover {
+    -fx-background-color: #d9c65c;
+    -fx-cursor: hand;
+}
+
+.nav-button:pressed {
+    -fx-background-color: #b9a61c;
+}
+
+.back-button {
+    -fx-pref-width: 120px;
+    -fx-pref-height: 40px;
+    -fx-font-size: 18px;
+    -fx-alignment: center;
+}
 

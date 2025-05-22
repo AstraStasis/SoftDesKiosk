@@ -15,10 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -27,7 +24,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
+
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,7 +34,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class KioskController implements Initializable {
+    public HBox topSelector;
     private Kiosk kiosk;
+    @FXML private StackPane cardStack;
+    @FXML private Button booksButton;
+    @FXML private Button uniformsButton;
+    @FXML private Button regiButton;
+    @FXML private Button gradeButton;
 
     @FXML private VBox studentInfoPane;
     @FXML private VBox checkoutPane;
@@ -286,12 +289,74 @@ public class KioskController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML private VBox leftContainer;
+    @FXML private HBox navButtons;
+
+
+
+
+
+
+
+
+    // Add these FXMl injections at the top of your controller
+    @FXML private HBox baoContainer;
+    @FXML private VBox registrarContainer;
+    @FXML private VBox misoContainer;
+
+    @FXML
+    private void showRegistrar() {
+        hideAllContainers();
+        registrarContainer.setVisible(true);
+        registrarContainer.setManaged(true);
+        backButton.setVisible(true);
+        backButton.setManaged(true);
+    }
+
+    @FXML
+    private void showBao() {
+        hideAllContainers();
+        baoContainer.setVisible(true);
+        baoContainer.setManaged(true);
+        backButton.setVisible(true);
+        backButton.setManaged(true);
+    }
+
+    @FXML
+    private void showMiso() {
+        hideAllContainers();
+        misoContainer.setVisible(true);
+        misoContainer.setManaged(true);
+        backButton.setVisible(true);
+        backButton.setManaged(true);
+    }
+
+    @FXML
+    private void handleBackToTop() {
+        hideAllContainers();
+        backButton.setVisible(false);
+        backButton.setManaged(false);
+    }
+
+    private void hideAllContainers() {
+        baoContainer.setVisible(false);
+        baoContainer.setManaged(false);
+        registrarContainer.setVisible(false);
+        registrarContainer.setManaged(false);
+        misoContainer.setVisible(false);
+        misoContainer.setManaged(false);
+    }
+    @FXML private Button backButton;
+
+
+
+
 
     // Payment and printing
     @FXML private void proceedToOnlinePayment() {
         Stage qrStage = new Stage();
         qrStage.initModality(Modality.APPLICATION_MODAL);
-        qrStage.initOwner(((Node) yearField).getScene().getWindow());
+        qrStage.initOwner(yearField.getScene().getWindow());
         qrStage.setTitle("Scan to Pay");
         ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/qr_example.png")));
         qrView.setPreserveRatio(true);
